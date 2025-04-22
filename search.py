@@ -3,7 +3,7 @@ from tkinter import ttk, scrolledtext
 import requests
 import json
 
-# Reemplaza con tu API Key
+
 API_KEY = 'A8KmASCGg2Fn7igt0jpgsEQHcRdn6KfSrsAhFEcT'
 BASE_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search'
 DETAILS_URL = 'https://api.nal.usda.gov/fdc/v1/food/{}?api_key={}'
