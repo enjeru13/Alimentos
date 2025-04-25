@@ -3,19 +3,22 @@ from tkinter import ttk
 from tkinter import messagebox
 from auth import verificar_credenciales
 
-def crear_login_screen(contenedor, mostrar_registro, mostrar_principal, mostrar_admin):
-    pantalla_login = tk.Frame(contenedor, bg="#f3f4f6", bd=1, width=300, height=400)
-    pantalla_login.pack_propagate(False)
+def crear_login_screen(parent, mostrar_registro, mostrar_principal, mostrar_admin):
+    pantalla_login = tk.Frame(parent, bg="#f3f4f6")
+    pantalla_login.pack(expand=True, fill="both")
 
-    tk.Label(pantalla_login, text="Iniciar Sesión", font=("Segoe UI", 18, "bold"), fg="#333", bg="#f3f4f6").pack(pady=(20, 10))
+    contenedor_central = tk.Frame(pantalla_login, bg="#f3f4f6")
+    contenedor_central.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+    tk.Label(contenedor_central, text="Iniciar Sesión", font=("Segoe UI", 18, "bold"), fg="#333", bg="#f3f4f6").pack(pady=(20, 10))
 
     entry_login_usuario_list = []
     entry_login_contrasena_list = []
-    entry_login_usuario = crear_input_apilado_estetico(pantalla_login, "Usuario:", entry_login_usuario_list)
-    entry_login_contrasena = crear_input_apilado_estetico(pantalla_login, "Contraseña:", entry_login_contrasena_list, show="*")
+    entry_login_usuario = crear_input_apilado_estetico(contenedor_central, "Usuario:", entry_login_usuario_list)
+    entry_login_contrasena = crear_input_apilado_estetico(contenedor_central, "Contraseña:", entry_login_contrasena_list, show="*")
 
     ver_login_var = tk.BooleanVar()
-    tk.Checkbutton(pantalla_login, text="Mostrar contraseña", variable=ver_login_var,
+    tk.Checkbutton(contenedor_central, text="Mostrar contraseña", variable=ver_login_var,
                     command=lambda: toggle_password([entry_login_contrasena], ver_login_var),
                     bg="#f3f4f6", font=("Segoe UI", 9), fg="#777", anchor='w', padx=10).pack(pady=5)
 
@@ -29,17 +32,17 @@ def crear_login_screen(contenedor, mostrar_registro, mostrar_principal, mostrar_
         if exito:
             messagebox.showinfo("Bienvenido", f"¡Bienvenido, {usuario}!")
             if rol == 'admin':
-                mostrar_admin(contenedor)
+                mostrar_admin(parent)
             else:
                 mostrar_principal(usuario)
         else:
             messagebox.showerror("Error", "Usuario o contraseña incorrectos")
 
-    tk.Button(pantalla_login, text="Iniciar Sesión", command=login,
+    tk.Button(contenedor_central, text="Iniciar Sesión", command=login,
               bg="#007BFF", fg="white", font=("Segoe UI", 11, "bold"),
               relief="flat", padx=15, pady=8, width=15).pack(pady=15)
 
-    tk.Button(pantalla_login, text="Ir a Registro", command=mostrar_registro,
+    tk.Button(contenedor_central, text="Ir a Registro", command=mostrar_registro,
               bg="#6C757D", fg="white", font=("Segoe UI", 10),
               relief="flat", padx=10, pady=5, width=15).pack(pady=5)
 

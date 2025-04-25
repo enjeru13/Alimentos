@@ -3,11 +3,14 @@ from tkinter import messagebox
 import re
 from auth import insertar_usuario, usuario_existe
 
-def crear_register_screen(contenedor, mostrar_login):
-    pantalla_registro = tk.Frame(contenedor, bg="#f3f4f6", bd=1, width=350, height=650)
-    pantalla_registro.pack_propagate(False)
+def crear_register_screen(parent, mostrar_login):
+    pantalla_registro = tk.Frame(parent, bg="#f3f4f6")
+    pantalla_registro.pack(expand=True, fill="both")
 
-    tk.Label(pantalla_registro, text="Registro de Usuario", font=("Segoe UI", 18, "bold"),
+    contenedor_central = tk.Frame(pantalla_registro, bg="#f3f4f6")
+    contenedor_central.place(relx=0.5, rely=0.5, anchor=tk.CENTER)
+
+    tk.Label(contenedor_central, text="Registro de Usuario", font=("Segoe UI", 18, "bold"),
              fg="#333", bg="#f3f4f6").pack(pady=(20, 10))
 
     entry_nombres_list = []
@@ -17,13 +20,13 @@ def crear_register_screen(contenedor, mostrar_login):
     entry_contrasena_list = []
     entry_confirmar_list = []
 
-    entry_nombres = crear_input_apilado_estetico(pantalla_registro, "Nombres:", entry_nombres_list)
-    entry_apellidos = crear_input_apilado_estetico(pantalla_registro, "Apellidos:", entry_apellidos_list)
-    entry_usuario = crear_input_apilado_estetico(pantalla_registro, "Usuario:", entry_usuario_list)
-    entry_email = crear_input_apilado_estetico(pantalla_registro, "Email:", entry_email_list)
-    entry_contrasena = crear_input_apilado_estetico(pantalla_registro, "Contraseña:", entry_contrasena_list, show="*")
+    entry_nombres = crear_input_apilado_estetico(contenedor_central, "Nombres:", entry_nombres_list)
+    entry_apellidos = crear_input_apilado_estetico(contenedor_central, "Apellidos:", entry_apellidos_list)
+    entry_usuario = crear_input_apilado_estetico(contenedor_central, "Usuario:", entry_usuario_list)
+    entry_email = crear_input_apilado_estetico(contenedor_central, "Email:", entry_email_list)
+    entry_contrasena = crear_input_apilado_estetico(contenedor_central, "Contraseña:", entry_contrasena_list, show="*")
 
-    contenedor_confirmar = tk.Frame(pantalla_registro, bg="#f3f4f6")
+    contenedor_confirmar = tk.Frame(contenedor_central, bg="#f3f4f6")
     label_confirmar_contrasena = tk.Label(contenedor_confirmar, text="Confirmar Contraseña:", font=("Segoe UI", 10, "bold"), bg="#f3f4f6", fg="#555", anchor='w')
     entry_confirmar_contrasena = tk.Entry(contenedor_confirmar, font=("Segoe UI", 10), bd=1, relief="groove", width=20, show="*")
     entry_confirmar_list.append(entry_confirmar_contrasena)
@@ -32,7 +35,7 @@ def crear_register_screen(contenedor, mostrar_login):
     contenedor_confirmar.pack(pady=8, fill='x')
 
     ver_registro_var = tk.BooleanVar()
-    tk.Checkbutton(pantalla_registro, text="Mostrar contraseñas", variable=ver_registro_var,
+    tk.Checkbutton(contenedor_central, text="Mostrar contraseñas", variable=ver_registro_var,
                     command=lambda: toggle_password([entry_contrasena, entry_confirmar_contrasena], ver_registro_var),
                     bg="#f3f4f6", font=("Segoe UI", 9), fg="#777", anchor='w', padx=10).pack(pady=5)
 
@@ -61,17 +64,17 @@ def crear_register_screen(contenedor, mostrar_login):
             return
 
         try:
-            insertar_usuario(nombres, apellidos, usuario, email, contraseña) # El rol por defecto es 'usuario'
+            insertar_usuario(nombres, apellidos, usuario, email, contraseña)
             messagebox.showinfo("Éxito", "Usuario registrado correctamente.")
             mostrar_login()
         except Exception as e:
             messagebox.showerror("Error", f"No se pudo registrar el usuario: {e}")
 
-    tk.Button(pantalla_registro, text="Registrar", command=registrar_usuario,
+    tk.Button(contenedor_central, text="Registrar", command=registrar_usuario,
               bg="#28A745", fg="white", font=("Segoe UI", 11, "bold"),
               relief="flat", padx=15, pady=8, width=15).pack(pady=15)
 
-    tk.Button(pantalla_registro, text="Ir a Login", command=mostrar_login,
+    tk.Button(contenedor_central, text="Ir a Login", command=mostrar_login,
               bg="#6C757D", fg="white", font=("Segoe UI", 10),
               relief="flat", padx=10, pady=5, width=15).pack(pady=5)
 

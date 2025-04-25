@@ -2,34 +2,43 @@ import tkinter as tk
 from login_screen import crear_login_screen
 from register_screen import crear_register_screen
 from main_screen import crear_main_screen
+from perfil_screen import crear_perfil_screen # Importa la nueva función
+
+# --- Variable global para el usuario actual ---
+usuario_actual_global = None
 
 # --- Funciones para cambiar de pantalla ---
-def mostrar_pantalla(contenedor, pantalla):
-    for widget in contenedor.winfo_children():
+def mostrar_pantalla(parent, pantalla):
+    for widget in parent.winfo_children():
+        widget.pack_forget()
+    pantalla.pack(expand=True, fill="both")
+
+def mostrar_pantalla_centrada(parent, pantalla):
+    for widget in parent.winfo_children():
         widget.pack_forget()
     pantalla.pack(expand=True, fill="both")
 
 def mostrar_registro_pantalla():
-    mostrar_pantalla(contenedor, register_screen)
+    mostrar_pantalla_centrada(ventana, register_screen)
 
 def mostrar_login_pantalla():
-    mostrar_pantalla(contenedor, login_screen)
+    mostrar_pantalla_centrada(ventana, login_screen)
 
 def mostrar_main_pantalla(usuario):
-    main_screen = crear_main_screen(contenedor, usuario, mostrar_perfil_pantalla)
-    mostrar_pantalla(contenedor, main_screen)
+    global usuario_actual_global
+    usuario_actual_global = usuario
+    main_screen = crear_main_screen(ventana, usuario, mostrar_perfil_pantalla)
+    mostrar_pantalla(ventana, main_screen) # La pantalla principal ocupa todo el espacio
 
 def mostrar_admin_pantalla():
-    admin_screen = tk.Frame(contenedor, bg="#E0F7FA", bd=1, relief="solid", width=500, height=500)
-    admin_screen.pack_propagate(False)
+    admin_screen = tk.Frame(ventana, bg="#E0F7FA", bd=1, relief="solid")
+    admin_screen.pack(expand=True, fill="both")
     tk.Label(admin_screen, text="Panel de Administrador", font=("Segoe UI", 16, "bold")).pack(pady=20)
-    mostrar_pantalla(contenedor, admin_screen)
+    mostrar_pantalla(ventana, admin_screen)
 
 def mostrar_perfil_pantalla():
-    perfil_screen = tk.Frame(contenedor, bg="#FFFFE0", bd=1, relief="solid", width=400, height=400)
-    perfil_screen.pack_propagate(False)
-    tk.Label(perfil_screen, text="Perfil del Usuario", font=("Segoe UI", 16, "bold")).pack(pady=20)
-    mostrar_pantalla(contenedor, perfil_screen)
+    perfil_screen = crear_perfil_screen(ventana, lambda: mostrar_main_pantalla(usuario_actual_global))
+    mostrar_pantalla(ventana, perfil_screen)
 
 # --- Interfaz gráfica principal ---
 ventana = tk.Tk()
@@ -37,14 +46,11 @@ ventana.title("Sistema de Usuarios")
 ventana.geometry("900x700")
 ventana.configure(bg="#f3f4f6")
 
-contenedor = tk.Frame(ventana, bg="#f3f4f6")
-contenedor.pack(expand=True, padx=20, pady=20)
-
 # --- Crear las pantallas ---
-login_screen = crear_login_screen(contenedor, mostrar_registro_pantalla, mostrar_main_pantalla, mostrar_admin_pantalla)
-register_screen = crear_register_screen(contenedor, mostrar_login_pantalla)
+login_screen = crear_login_screen(ventana, mostrar_registro_pantalla, mostrar_main_pantalla, mostrar_admin_pantalla)
+register_screen = crear_register_screen(ventana, mostrar_login_pantalla)
 
-# --- Mostrar la pantalla inicial ---
-mostrar_pantalla(contenedor, login_screen)
+# --- Mostrar la pantalla inicial (centrada) ---
+mostrar_pantalla_centrada(ventana, login_screen)
 
 ventana.mainloop()

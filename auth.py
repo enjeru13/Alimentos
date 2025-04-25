@@ -42,9 +42,8 @@ def verificar_credenciales(usuario, contraseña):
     conn = conectar()
     cursor = conn.cursor()
 
-    # Buscar el hash de la contraseña y el rol desde la base de datos
     query = "SELECT contraseña, rol FROM usuarios WHERE nombre_usuario=%s OR email=%s"
-    cursor.execute(query, (usuario, usuario))  # Buscamos por nombre_usuario o email
+    cursor.execute(query, (usuario, usuario))
     resultado = cursor.fetchone()
     cursor.close()
     conn.close()
@@ -57,7 +56,6 @@ def verificar_credenciales(usuario, contraseña):
             return False, None
     return False, None
 
-# Función para obtener el rol de un usuario (opcional)
 def obtener_rol_usuario(usuario):
     conn = conectar()
     cursor = conn.cursor()
