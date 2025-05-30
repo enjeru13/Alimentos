@@ -1,8 +1,8 @@
 import tkinter as tk
 from tkinter import ttk, scrolledtext
-import requests
+import requests # type: ignore
 import json
-from dotenv import load_dotenv
+from dotenv import load_dotenv # type: ignore
 import os
 
 load_dotenv()
