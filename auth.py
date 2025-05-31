@@ -1,6 +1,6 @@
 from datetime import datetime
-from db_usuarios import conectar
-import bcrypt # type: ignore
+from db import conectar
+import bcrypt  # type: ignore
 
 # Función para insertar un nuevo usuario
 def insertar_usuario(nombres, apellidos, nombre_usuario, email, contraseña, rol='usuario'):
@@ -23,6 +23,7 @@ def insertar_usuario(nombres, apellidos, nombre_usuario, email, contraseña, rol
     """
     cursor.execute(query, (nombres, apellidos, nombre_usuario, email, hashed_password, fecha_registro, rol))
     conn.commit()
+    
     cursor.close()
     conn.close()
 
@@ -30,14 +31,16 @@ def insertar_usuario(nombres, apellidos, nombre_usuario, email, contraseña, rol
 def usuario_existe(nombre_usuario, email):
     conn = conectar()
     cursor = conn.cursor()
-    query = "SELECT * FROM usuarios WHERE nombre_usuario = %s OR email = %s"
+    query = "SELECT id FROM usuarios WHERE nombre_usuario = %s OR email = %s"
     cursor.execute(query, (nombre_usuario, email))
     resultado = cursor.fetchone()
+    
     cursor.close()
     conn.close()
+    
     return resultado is not None
 
-# Función para verificar las credenciales de login y obtener el rol
+# Función para verificar credenciales de login y obtener el rol
 def verificar_credenciales(usuario, contraseña):
     conn = conectar()
     cursor = conn.cursor()
@@ -45,6 +48,7 @@ def verificar_credenciales(usuario, contraseña):
     query = "SELECT contraseña, rol FROM usuarios WHERE nombre_usuario=%s OR email=%s"
     cursor.execute(query, (usuario, usuario))
     resultado = cursor.fetchone()
+    
     cursor.close()
     conn.close()
 
@@ -56,14 +60,30 @@ def verificar_credenciales(usuario, contraseña):
             return False, None
     return False, None
 
+# Función para obtener el rol del usuario
 def obtener_rol_usuario(usuario):
     conn = conectar()
     cursor = conn.cursor()
+    
     query = "SELECT rol FROM usuarios WHERE nombre_usuario=%s OR email=%s"
     cursor.execute(query, (usuario, usuario))
     resultado = cursor.fetchone()
+    
     cursor.close()
     conn.close()
-    if resultado:
-        return resultado[0]
-    return None
+    
+    return resultado[0] if resultado else None
+
+# Función para obtener todos los datos del usuario
+def obtener_datos_usuario(usuario):
+    conn = conectar()
+    cursor = conn.cursor()
+    
+    query = "SELECT nombres, apellidos, nombre_usuario, email, fecha_registro, rol FROM usuarios WHERE nombre_usuario=%s OR email=%s"
+    cursor.execute(query, (usuario, usuario))
+    resultado = cursor.fetchone()
+    
+    cursor.close()
+    conn.close()
+    
+    return resultado if resultado else None

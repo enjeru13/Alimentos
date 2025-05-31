@@ -7,8 +7,8 @@ import os
 
 load_dotenv()
 
-API_KEY = os.getenv('API_KEY_USDA')
-BASE_URL = 'https://api.nal.usda.gov/fdc/v1/foods/search'
+API_KEY = os.getenv('API_KEY_ALIMENTOS')
+BASE_URL = 'https://foodapi.calorieking.com/v1'
 DETAILS_URL = 'https://api.nal.usda.gov/fdc/v1/food/{}?api_key={}'
 
 def buscar_alimento_api(termino_busqueda):
