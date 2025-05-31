@@ -4,7 +4,7 @@ def crear_perfil_screen(parent, nombres, apellidos, usuario, email, fecha_regist
     perfil_frame = tk.Frame(parent, bg="#FFF")
     perfil_frame.pack(expand=True, fill="both")
 
-    tk.Label(perfil_frame, text="Perfil del Usuario", font=("Segoe UI", 18, "bold"), bg="#FFF").pack(pady=20)
+    tk.Label(perfil_frame, text="Perfil del Usuario 12345", font=("Segoe UI", 18, "bold"), bg="#FFF").pack(pady=20)
 
     # Contenedor de datos
     contenedor_datos = tk.Frame(perfil_frame, bg="#FFF", padx=20, pady=20, relief="solid", bd=3)
