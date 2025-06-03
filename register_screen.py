@@ -43,6 +43,7 @@ def crear_register_screen(parent, mostrar_login):
     # Crear campos de entrada
     entry_nombres = crear_input_apilado_estetico(contenedor_central, "Nombres:")
     entry_apellidos = crear_input_apilado_estetico(contenedor_central, "Apellidos:")
+    entry_cedula = crear_input_apilado_estetico(contenedor_central, "Cédula de Identidad:")
     entry_usuario = crear_input_apilado_estetico(contenedor_central, "Usuario:")
     entry_email = crear_input_apilado_estetico(contenedor_central, "Email:")
     entry_contrasena = crear_input_apilado_estetico(contenedor_central, "Contraseña:", show="*")
@@ -71,8 +72,9 @@ def crear_register_screen(parent, mostrar_login):
         email = entry_email.get()
         contraseña = entry_contrasena.get()
         confirmar = entry_confirmar_contrasena.get()
-        
-        if not all([nombres, apellidos, usuario, email, contraseña, confirmar]):
+        cedula = entry_cedula.get()
+
+        if not all([nombres, apellidos, usuario, email, contraseña, confirmar, cedula]):
             messagebox.showerror("Error", "Todos los campos son obligatorios.")
             return
         if contraseña != confirmar:
@@ -84,12 +86,15 @@ def crear_register_screen(parent, mostrar_login):
         if not es_contraseña_segura(contraseña):
             messagebox.showerror("Error", "La contraseña debe tener al menos 8 caracteres.")
             return
-        if usuario_existe(usuario, email):
+        if usuario_existe(usuario, email, cedula):
             messagebox.showerror("Error", "El usuario o el email ya están registrados.")
             return
-        
+        if not cedula.isdigit() or len(cedula) not in range(7, 12):  # Ajusta el rango según tu país
+            messagebox.showerror("Error", "La cédula debe contener solo números y tener una longitud válida.")
+            return
+
         try:
-            insertar_usuario(nombres, apellidos, usuario, email, contraseña)
+            insertar_usuario(nombres, apellidos, usuario, email, contraseña, cedula)
             messagebox.showinfo("Éxito", "Usuario registrado correctamente.")
             mostrar_login()
         except Exception as e:

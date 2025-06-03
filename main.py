@@ -41,8 +41,8 @@ def mostrar_perfil_pantalla():
     # Obtener los datos del usuario antes de mostrar la pantalla de perfil
     datos_usuario = obtener_datos_usuario(usuario_actual_global)
     if datos_usuario:
-        nombres_actual, apellidos_actual, usuario_actual, email_actual, fecha_registro_actual, rol_actual = datos_usuario
-        perfil_screen = crear_perfil_screen(ventana, nombres_actual, apellidos_actual, usuario_actual, email_actual, fecha_registro_actual, rol_actual, lambda: mostrar_main_pantalla(usuario_actual))
+        nombres_actual, apellidos_actual, usuario_actual, email_actual, cedula_actual, fecha_registro_actual, rol_actual = datos_usuario
+        perfil_screen = crear_perfil_screen(ventana, nombres_actual, apellidos_actual, usuario_actual, email_actual, cedula_actual, fecha_registro_actual, rol_actual, lambda: mostrar_main_pantalla(usuario_actual))
         mostrar_pantalla(ventana, perfil_screen)
     else:
         messagebox.showerror("Error", "No se pudieron obtener los datos del usuario.")

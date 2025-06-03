@@ -8,4 +8,4 @@ try:
     print("📦 Datos en alimentos:", datos)
     conexion.close()
 except Exception as e:
-    print(f"❌ Error en la consulta: {e}")
+    print(f"❌ Error en la consulta: {e}")  

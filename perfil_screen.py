@@ -1,6 +1,6 @@
 import tkinter as tk
 
-def crear_perfil_screen(parent, nombres, apellidos, usuario, email, fecha_registro, rol, volver_callback):
+def crear_perfil_screen(parent, nombres, apellidos, usuario, email, cedula, fecha_registro, rol, volver_callback):
     perfil_frame = tk.Frame(parent, bg="#FFF")
     perfil_frame.pack(expand=True, fill="both")
 
@@ -21,6 +21,7 @@ def crear_perfil_screen(parent, nombres, apellidos, usuario, email, fecha_regist
     # Agregar datos del usuario
     agregar_info("Nombres y apellidos:", f"{nombres} {apellidos}")
     agregar_info("Usuario:", usuario)
+    agregar_info("Cedula:", cedula)
     agregar_info("Email:", email)
     agregar_info("Fecha de Registro:", fecha_registro)
     agregar_info("Rol:", rol)

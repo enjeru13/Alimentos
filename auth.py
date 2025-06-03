@@ -3,10 +3,10 @@ from db import conectar
 import bcrypt  # type: ignore
 
 # Función para insertar un nuevo usuario
-def insertar_usuario(nombres, apellidos, nombre_usuario, email, contraseña, rol='usuario'):
-    # Verificar si el usuario o correo ya existen
-    if usuario_existe(nombre_usuario, email):
-        raise Exception("El usuario o correo electrónico ya está registrado.")
+def insertar_usuario(nombres, apellidos, nombre_usuario, email, contraseña, cedula, rol='usuario'):
+    # Verificar si el usuario, correo o cédula ya existen
+    if usuario_existe(nombre_usuario, email, cedula):
+        raise Exception("El usuario, correo electrónico o cédula ya están registrados.")
 
     # Encriptar contraseña
     hashed_password = bcrypt.hashpw(contraseña.encode('utf-8'), bcrypt.gensalt())
@@ -15,24 +15,24 @@ def insertar_usuario(nombres, apellidos, nombre_usuario, email, contraseña, rol
     conn = conectar()
     cursor = conn.cursor()
 
-    # Registrar usuario con rol
+    # Registrar usuario con rol y cédula
     fecha_registro = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
     query = """
-    INSERT INTO usuarios (nombres, apellidos, nombre_usuario, email, contraseña, fecha_registro, rol)
-    VALUES (%s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO usuarios (nombres, apellidos, nombre_usuario, email, contraseña, cedula, fecha_registro, rol)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
     """
-    cursor.execute(query, (nombres, apellidos, nombre_usuario, email, hashed_password, fecha_registro, rol))
+    cursor.execute(query, (nombres, apellidos, nombre_usuario, email, hashed_password, cedula, fecha_registro, rol))
     conn.commit()
     
     cursor.close()
     conn.close()
 
-# Función para verificar si el usuario o correo ya existen
-def usuario_existe(nombre_usuario, email):
+# Función para verificar si el usuario, correo o cédula ya existen
+def usuario_existe(nombre_usuario, email, cedula):
     conn = conectar()
     cursor = conn.cursor()
-    query = "SELECT id FROM usuarios WHERE nombre_usuario = %s OR email = %s"
-    cursor.execute(query, (nombre_usuario, email))
+    query = "SELECT id FROM usuarios WHERE nombre_usuario = %s OR email = %s OR cedula = %s"
+    cursor.execute(query, (nombre_usuario, email, cedula))
     resultado = cursor.fetchone()
     
     cursor.close()
@@ -79,7 +79,7 @@ def obtener_datos_usuario(usuario):
     conn = conectar()
     cursor = conn.cursor()
     
-    query = "SELECT nombres, apellidos, nombre_usuario, email, fecha_registro, rol FROM usuarios WHERE nombre_usuario=%s OR email=%s"
+    query = "SELECT nombres, apellidos, nombre_usuario, email, cedula, fecha_registro, rol FROM usuarios WHERE nombre_usuario=%s OR email=%s"
     cursor.execute(query, (usuario, usuario))
     resultado = cursor.fetchone()
     
