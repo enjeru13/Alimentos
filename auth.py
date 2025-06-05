@@ -3,27 +3,23 @@ from db import conectar
 import bcrypt  # type: ignore
 
 # Función para insertar un nuevo usuario
-def insertar_usuario(nombres, apellidos, nombre_usuario, email, contraseña, cedula, rol='usuario'):
-    # Verificar si el usuario, correo o cédula ya existen
+def insertar_usuario(nombres, apellidos, nombre_usuario, email, contraseña, cedula, año_seccion, fecha_registro, rol='usuario'):
     if usuario_existe(nombre_usuario, email, cedula):
         raise Exception("El usuario, correo electrónico o cédula ya están registrados.")
 
-    # Encriptar contraseña
     hashed_password = bcrypt.hashpw(contraseña.encode('utf-8'), bcrypt.gensalt())
 
-    # Conexión a la base de datos
     conn = conectar()
     cursor = conn.cursor()
 
-    # Registrar usuario con rol y cédula
-    fecha_registro = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    # Registrar usuario con año_seccion, fecha_registro y rol
     query = """
-    INSERT INTO usuarios (nombres, apellidos, nombre_usuario, email, contraseña, cedula, fecha_registro, rol)
-    VALUES (%s, %s, %s, %s, %s, %s, %s, %s)
+    INSERT INTO usuarios (nombres, apellidos, nombre_usuario, email, contraseña, cedula, año_seccion, fecha_registro, rol)
+    VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """
-    cursor.execute(query, (nombres, apellidos, nombre_usuario, email, hashed_password, cedula, fecha_registro, rol))
+    cursor.execute(query, (nombres, apellidos, nombre_usuario, email, hashed_password, cedula, año_seccion, fecha_registro, rol))
+
     conn.commit()
-    
     cursor.close()
     conn.close()
 
@@ -34,10 +30,11 @@ def usuario_existe(nombre_usuario, email, cedula):
     query = "SELECT id FROM usuarios WHERE nombre_usuario = %s OR email = %s OR cedula = %s"
     cursor.execute(query, (nombre_usuario, email, cedula))
     resultado = cursor.fetchone()
-    
+
+    cursor.fetchall()  # Consumir resultados pendientes para evitar errores de cursor
     cursor.close()
     conn.close()
-    
+
     return resultado is not None
 
 # Función para verificar credenciales de login y obtener el rol
@@ -48,7 +45,7 @@ def verificar_credenciales(usuario, contraseña):
     query = "SELECT contraseña, rol FROM usuarios WHERE nombre_usuario=%s OR email=%s"
     cursor.execute(query, (usuario, usuario))
     resultado = cursor.fetchone()
-    
+
     cursor.close()
     conn.close()
 
@@ -79,7 +76,7 @@ def obtener_datos_usuario(usuario):
     conn = conectar()
     cursor = conn.cursor()
     
-    query = "SELECT nombres, apellidos, nombre_usuario, email, cedula, fecha_registro, rol FROM usuarios WHERE nombre_usuario=%s OR email=%s"
+    query = "SELECT nombres, apellidos, nombre_usuario, email, cedula, año_seccion, fecha_registro, rol FROM usuarios WHERE nombre_usuario=%s OR email=%s"
     cursor.execute(query, (usuario, usuario))
     resultado = cursor.fetchone()
     

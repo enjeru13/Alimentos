@@ -1,10 +1,14 @@
-import tkinter as tk
+import customtkinter as ctk
 from tkinter import messagebox
 from login_screen import crear_login_screen
 from register_screen import crear_register_screen
 from main_screen import crear_main_screen
 from perfil_screen import crear_perfil_screen
 from auth import obtener_datos_usuario
+
+# Configuración de CustomTkinter
+ctk.set_appearance_mode("dark")  # Opciones: "light", "dark", "system"
+ctk.set_default_color_theme("blue")  # También puedes usar "green", "dark-blue"
 
 # Variable global para almacenar el usuario actual
 usuario_actual_global = None
@@ -23,9 +27,11 @@ def mostrar_login_pantalla():
     mostrar_pantalla(ventana, login_screen)
 
 def mostrar_admin_pantalla():
-    admin_screen = tk.Frame(ventana, bg="#E0F7FA", bd=1, relief="solid")
+    admin_screen = ctk.CTkFrame(ventana)
     admin_screen.pack(expand=True, fill="both")
-    tk.Label(admin_screen, text="Panel de Administrador", font=("Segoe UI", 16, "bold")).pack(pady=20)
+
+    ctk.CTkLabel(admin_screen, text="Panel de Administrador", font=("Segoe UI", 16, "bold")).pack(pady=20)
+    
     mostrar_pantalla(ventana, admin_screen)
 
 def mostrar_main_pantalla(usuario):
@@ -41,17 +47,19 @@ def mostrar_perfil_pantalla():
     # Obtener los datos del usuario antes de mostrar la pantalla de perfil
     datos_usuario = obtener_datos_usuario(usuario_actual_global)
     if datos_usuario:
-        nombres_actual, apellidos_actual, usuario_actual, email_actual, cedula_actual, fecha_registro_actual, rol_actual = datos_usuario
-        perfil_screen = crear_perfil_screen(ventana, nombres_actual, apellidos_actual, usuario_actual, email_actual, cedula_actual, fecha_registro_actual, rol_actual, lambda: mostrar_main_pantalla(usuario_actual))
+        nombres_actual, apellidos_actual, usuario_actual, email_actual, cedula_actual, fecha_registro_actual, año_seccion_actual, rol_actual = datos_usuario
+        perfil_screen = crear_perfil_screen(
+            ventana, nombres_actual, apellidos_actual, usuario_actual, email_actual, cedula_actual, fecha_registro_actual, año_seccion_actual, rol_actual,
+            lambda: mostrar_main_pantalla(usuario_actual)
+        )
         mostrar_pantalla(ventana, perfil_screen)
     else:
         messagebox.showerror("Error", "No se pudieron obtener los datos del usuario.")
 
-# Crear la ventana principal
-ventana = tk.Tk()
+# Crear la ventana principal con CustomTkinter
+ventana = ctk.CTk()
 ventana.title("Sistema de Usuarios")
 ventana.geometry("900x700")
-ventana.configure(bg="#f3f4f6")
 
 # Crear las pantallas
 login_screen = crear_login_screen(ventana, mostrar_registro_pantalla, mostrar_main_pantalla, mostrar_admin_pantalla)
