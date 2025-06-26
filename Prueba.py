@@ -1,1 +1,0 @@
-print("Valores a insertar:", nombres, apellidos, nombre_usuario, email, contraseña, cedula, año_seccion, fecha_registro, rol)

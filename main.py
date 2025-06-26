@@ -1,71 +1,77 @@
+# main.py
+
 import customtkinter as ctk
 from tkinter import messagebox
-from login_screen import crear_login_screen
-from register_screen import crear_register_screen
-from main_screen import crear_main_screen
-from perfil_screen import crear_perfil_screen
-from auth import obtener_datos_usuario
 
-# Configuración de CustomTkinter
-ctk.set_appearance_mode("dark")  # Opciones: "light", "dark", "system"
-ctk.set_default_color_theme("blue")  # También puedes usar "green", "dark-blue"
+from screens.login_screen import crear_login_screen
+from screens.register_screen import crear_register_screen
+from screens.main_screen import crear_main_screen
+from screens.perfil_screen import crear_perfil_screen
 
-# Variable global para almacenar el usuario actual
+# Importamos el controller que carga un Usuario completo
+from controllers.usuarios_controller import obtener_usuario
+
+# ── Configuración global CTk ──────────────────────────────────────────────
+ctk.set_appearance_mode("dark")
+ctk.set_default_color_theme("blue")
+
+# ── Variables globales ────────────────────────────────────────────────────
 usuario_actual_global = None
+rol_actual_global = None
 
-# Función para cambiar de pantalla
+
 def mostrar_pantalla(parent, pantalla):
-    for widget in parent.winfo_children():
-        widget.pack_forget()
+    """Oculta todos los widgets de parent y muestra solo pantalla."""
+    for w in parent.winfo_children():
+        w.pack_forget()
     pantalla.pack(expand=True, fill="both")
 
-# Funciones para navegación
-def mostrar_registro_pantalla():
-    mostrar_pantalla(ventana, register_screen)
 
 def mostrar_login_pantalla():
     mostrar_pantalla(ventana, login_screen)
 
-def mostrar_admin_pantalla():
-    admin_screen = ctk.CTkFrame(ventana)
-    admin_screen.pack(expand=True, fill="both")
 
-    ctk.CTkLabel(admin_screen, text="Panel de Administrador", font=("Segoe UI", 16, "bold")).pack(pady=20)
-    
-    mostrar_pantalla(ventana, admin_screen)
+def mostrar_registro_pantalla():
+    mostrar_pantalla(ventana, register_screen)
 
-def mostrar_main_pantalla(usuario):
-    global usuario_actual_global
+
+def mostrar_principal(usuario, rol):
+    """Guarda usuario/rol y muestra la pantalla principal."""
+    global usuario_actual_global, rol_actual_global
     usuario_actual_global = usuario
+    rol_actual_global = rol
 
-    main_screen = crear_main_screen(ventana, usuario, mostrar_perfil_pantalla)
-    mostrar_pantalla(ventana, main_screen)
+    main = crear_main_screen(
+        ventana, usuario_actual_global, rol_actual_global, mostrar_perfil_pantalla
+    )
+    mostrar_pantalla(ventana, main)
+
 
 def mostrar_perfil_pantalla():
-    global usuario_actual_global
-    
-    # Obtener los datos del usuario antes de mostrar la pantalla de perfil
-    datos_usuario = obtener_datos_usuario(usuario_actual_global)
-    if datos_usuario:
-        nombres_actual, apellidos_actual, usuario_actual, email_actual, cedula_actual, fecha_registro_actual, año_seccion_actual, rol_actual = datos_usuario
-        perfil_screen = crear_perfil_screen(
-            ventana, nombres_actual, apellidos_actual, usuario_actual, email_actual, cedula_actual, fecha_registro_actual, año_seccion_actual, rol_actual,
-            lambda: mostrar_main_pantalla(usuario_actual)
-        )
-        mostrar_pantalla(ventana, perfil_screen)
-    else:
+    """
+    Obtiene un objeto Usuario desde el controller y construye la pantalla de perfil.
+    """
+    user = obtener_usuario(usuario_actual_global)
+    if not user:
         messagebox.showerror("Error", "No se pudieron obtener los datos del usuario.")
+        return
 
-# Crear la ventana principal con CustomTkinter
+    perfil = crear_perfil_screen(
+        ventana, user, lambda: mostrar_principal(user.nombre_usuario, user.rol)
+    )
+    mostrar_pantalla(ventana, perfil)
+
+
+# ── Inicialización de la ventana ─────────────────────────────────────────
 ventana = ctk.CTk()
 ventana.title("Sistema de Usuarios")
 ventana.geometry("900x700")
 
-# Crear las pantallas
-login_screen = crear_login_screen(ventana, mostrar_registro_pantalla, mostrar_main_pantalla, mostrar_admin_pantalla)
+# ── Instancia de pantallas de login y registro ───────────────────────────
+login_screen = crear_login_screen(ventana, mostrar_registro_pantalla, mostrar_principal)
 register_screen = crear_register_screen(ventana, mostrar_login_pantalla)
 
-# Mostrar la pantalla inicial
-mostrar_pantalla(ventana, login_screen)
+# Arranca en login
+mostrar_login_pantalla()
 
 ventana.mainloop()
