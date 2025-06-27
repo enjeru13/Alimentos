@@ -4,21 +4,15 @@ from PIL import Image
 
 
 class ResultsList(ctk.CTkScrollableFrame):
-    """
-    Lista de resultados. Recibe lista de alimentos (obj con id_producto,
-    nom_producto e imagen_url), y llama a on_select(id) al pinchar.
-    """
 
     def __init__(self, parent, on_select, **kwargs):
         super().__init__(parent, **kwargs)
         self.on_select = on_select
 
     def update(self, items):
-        # Limpiar
         for w in self.winfo_children():
             w.destroy()
 
-        # Mostrar cada alimento
         for al in items:
             icon = None
             if getattr(al, "imagen_url", None):

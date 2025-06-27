@@ -18,7 +18,6 @@ def load_config():
             return json.load(open(CONFIG_PATH, "r"))
         except:
             pass
-    # valores por defecto
     return {"appearance": "System", "color_theme": "blue"}
 
 
@@ -26,7 +25,6 @@ def save_config(cfg):
     json.dump(cfg, open(CONFIG_PATH, "w"), indent=2)
 
 
-# ── Inicializamos modo y tema integrado ─────────────────────────────
 cfg = load_config()
 ctk.set_appearance_mode(cfg.get("appearance", "System"))
 ctk.set_default_color_theme(cfg.get("color_theme", "blue"))

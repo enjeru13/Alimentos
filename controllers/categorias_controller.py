@@ -1,5 +1,3 @@
-# controllers/categorias_controller.py
-
 from typing import List
 from controllers.authz import require_admin
 from models.categoria import Categoria

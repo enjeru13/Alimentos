@@ -1,81 +1,69 @@
-# screens/perfil_screen.py
-
 import customtkinter as ctk
+from PIL import Image, ImageDraw
 from models.usuario import Usuario
 
 
 def crear_perfil_screen(parent, usuario: Usuario, volver_callback):
-    """
-    parent:      CTk window/frame
-    usuario:     instancia de models.Usuario
-    volver_callback(): función para volver al menú principal
-    """
     perfil_frame = ctk.CTkFrame(parent)
     perfil_frame.pack(expand=True, fill="both", padx=20, pady=20)
 
-    # Título
+    bg_color = ("#FFFFFF", "#2C3E50")
+    cont_color = ("#F7F7F7", "#34495E")
+
+    bg = ctk.CTkFrame(perfil_frame, corner_radius=15, fg_color=bg_color)
+    bg.pack(expand=True, fill="both", padx=40, pady=20)
+
     ctk.CTkLabel(
-        perfil_frame,
-        text="Perfil del Usuario",
-        font=("Segoe UI", 24, "bold"),
-    ).pack(pady=20)
+        bg, text="Perfil del Usuario", font=("Segoe UI", 24, "bold"), justify="center"
+    ).pack(pady=(20, 10))
 
-    contenedor = ctk.CTkFrame(
-        perfil_frame, corner_radius=15, fg_color="#2C3E50", width=600
+    avatar_img = Image.new("RGBA", (100, 100), (200, 200, 200, 255))
+    draw = ImageDraw.Draw(avatar_img)
+    draw.ellipse((0, 0, 100, 100), fill=(150, 150, 150, 255))
+    avatar_ctk = ctk.CTkImage(
+        light_image=avatar_img, dark_image=avatar_img, size=(100, 100)
     )
-    contenedor.pack(pady=10, padx=30, fill="both", expand=True)
+    ctk.CTkLabel(bg, image=avatar_ctk, text="").pack(pady=(0, 20))
 
-    def agregar_seccion(titulo: str):
+    cont = ctk.CTkFrame(bg, corner_radius=10, fg_color=cont_color)
+    cont.pack(padx=40, pady=(0, 20), fill="x")
+    cont.grid_columnconfigure(0, weight=1)
+    cont.grid_columnconfigure(1, weight=1)
+
+    fila = 0
+
+    def nueva_seccion(titulo: str):
+        nonlocal fila
         ctk.CTkLabel(
-            contenedor,
-            text=titulo,
-            font=("Segoe UI", 16, "bold"),
-            anchor="w",
-        ).pack(fill="x", padx=10, pady=(10, 5))
+            cont, text=titulo, font=("Segoe UI", 18, "bold"), justify="center"
+        ).grid(row=fila, column=0, columnspan=2, sticky="ew", pady=(15, 5))
+        fila += 1
 
-    def agregar_info(etiqueta: str, valor: str):
-        fila = ctk.CTkFrame(contenedor, fg_color="transparent")
-        lbl = ctk.CTkLabel(
-            fila,
-            text=etiqueta,
-            font=("Segoe UI", 14, "bold"),
-            width=180,
-            anchor="w",
+    def nuevo_campo(etq: str, val: str):
+        nonlocal fila
+        ctk.CTkLabel(
+            cont, text=etq, font=("Segoe UI", 14, "bold"), justify="center"
+        ).grid(row=fila, column=0, sticky="ew", padx=5, pady=2)
+        ctk.CTkLabel(cont, text=val, font=("Segoe UI", 14), justify="center").grid(
+            row=fila, column=1, sticky="ew", padx=5, pady=2
         )
-        txt = ctk.CTkLabel(
-            fila,
-            text=valor,
-            font=("Segoe UI", 12),
-            anchor="w",
-        )
-        lbl.grid(row=0, column=0, padx=10, pady=(5, 0), sticky="w")
-        txt.grid(row=0, column=1, padx=10, pady=(5, 0), sticky="w")
-        fila.pack(fill="x", padx=10, pady=5)
+        fila += 1
 
-    # Sección: Datos Personales
-    agregar_seccion("Datos Personales")
-    agregar_info("Nombre Completo:", f"{usuario.nombres} {usuario.apellidos}")
-    agregar_info("Cédula:", usuario.cedula)
+    nueva_seccion("Datos Personales")
+    nuevo_campo("Nombre Completo:", f"{usuario.nombres} {usuario.apellidos}")
+    nuevo_campo("Cédula:", usuario.cedula)
 
-    # Sección: Detalles de Cuenta
-    agregar_seccion("Detalles de Cuenta")
-    agregar_info("Usuario:", usuario.nombre_usuario)
-    agregar_info("Email:", usuario.email)
-    agregar_info("Fecha de Registro:", usuario.fecha_registro)
+    nueva_seccion("Cuenta")
+    nuevo_campo("Usuario:", usuario.nombre_usuario)
+    nuevo_campo("Email:", usuario.email)
+    nuevo_campo("Registrado:", usuario.fecha_registro)
 
-    # Sección: Información Académica
-    agregar_seccion("Información Académica")
-    agregar_info("Año y Sección:", usuario.año_seccion)
-    agregar_info("Rol:", usuario.rol)
+    nueva_seccion("Académica")
+    nuevo_campo("Año y Sección:", usuario.año_seccion)
+    nuevo_campo("Rol:", usuario.rol)
 
-    # Botón Volver
     ctk.CTkButton(
-        perfil_frame,
-        text="Volver al Menú",
-        command=volver_callback,
-        fg_color="#27AE60",
-        hover_color="#2ECC71",
-        width=200,
-    ).pack(pady=20)
+        bg, text="Volver al Menú", width=180, corner_radius=8, command=volver_callback
+    ).pack(pady=(10, 20))
 
     return perfil_frame

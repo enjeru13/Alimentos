@@ -1,5 +1,3 @@
-# screens/alimentos_user_screen.py
-
 import customtkinter as ctk
 from customtkinter import CTkImage
 from tkinter import messagebox
@@ -9,128 +7,109 @@ from controllers.alimentos_controller import listar_alimentos, obtener_alimento
 
 
 def crear_alimentos_user_screen(parent, volver_cb):
-    """
-    Pantalla de lista de alimentos (solo lectura) para usuarios.
-    Muestra miniaturas en la lista y detalle en ventana scrollable.
-    """
     pantalla = ctk.CTkFrame(parent)
-    pantalla.pack(expand=True, fill="both")
+    pantalla.pack(expand=True, fill="both", padx=20, pady=20)
+    pantalla.bind_class("CTkButton", "<Return>", lambda e: e.widget.invoke())
 
-    # — Título —
-    ctk.CTkLabel(
-        pantalla,
-        text="Lista de Alimentos",
-        font=("Segoe UI", 22, "bold"),
-    ).pack(pady=20)
+    ctk.CTkLabel(pantalla, text="Alimentos", font=("Segoe UI", 22, "bold")).pack(
+        pady=(0, 15)
+    )
 
-    # — Lista scrollable de botones —
-    lista_frame = ctk.CTkScrollableFrame(pantalla, width=600, height=400)
-    lista_frame.pack(padx=20, pady=10, fill="both", expand=True)
+    panel = ctk.CTkFrame(pantalla, fg_color="transparent")
+    panel.pack(expand=True, fill="both")
 
-    def _populate():
-        for w in lista_frame.winfo_children():
-            w.destroy()
+    lista_frame = ctk.CTkScrollableFrame(panel, corner_radius=10)
+    lista_frame.pack(side="left", fill="both", expand=True, padx=(0, 10))
 
-        alimentos = listar_alimentos()
-        if not alimentos:
-            ctk.CTkLabel(
-                lista_frame,
-                text="No hay alimentos registrados.",
-                font=("Segoe UI", 14),
-            ).pack(pady=10)
-            return
+    detail_frame = ctk.CTkFrame(panel, corner_radius=10)
+    detail_frame.pack(side="right", fill="both", expand=True)
 
-        for al in alimentos:
-            img_icon = None
-            if al.imagen_url:
-                try:
-                    pil = Image.open(al.imagen_url)
-                    pil.thumbnail((30, 30))
-                    img_icon = CTkImage(light_image=pil, dark_image=pil, size=(30, 30))
-                except:
-                    img_icon = None
+    blank = Image.new("RGBA", (200, 200), (0, 0, 0, 0))
+    blank_img = CTkImage(light_image=blank, dark_image=blank, size=(200, 200))
+    img_label = ctk.CTkLabel(detail_frame, image=blank_img, text="")
+    img_label.image = blank_img
+    img_label.pack(pady=(20, 10))
 
-            btn = ctk.CTkButton(
-                lista_frame,
-                text=f"  {al.nom_producto}",
-                image=img_icon,
-                compound="left",
-                fg_color="#3498DB",
-                hover_color="#2980B9",
-                anchor="w",
-                command=lambda pid=al.id_producto: _mostrar_detalles(pid),
-            )
-            btn.image_ref = img_icon
-            btn.pack(fill="x", padx=5, pady=3)
+    text_label = ctk.CTkLabel(
+        detail_frame,
+        text="Selecciona un alimento para ver detalles",
+        wraplength=280,
+        justify="left",
+    )
+    text_label.pack(fill="both", expand=True, padx=10, pady=(0, 20))
 
-    def _mostrar_detalles(id_producto: int):
-        al = obtener_alimento(id_producto)
+    def _mostrar_detalles(pid):
+        al = obtener_alimento(pid)
         if not al:
             return messagebox.showerror("Error", "No se pudieron obtener los detalles.")
 
-        top = ctk.CTkToplevel(pantalla)
-        top.title(al.nom_producto)
-        top.geometry("750x500")
-
-        # Frame scrollable para todo el contenido
-        scroll = ctk.CTkScrollableFrame(top, width=730, height=480)
-        scroll.pack(padx=10, pady=10, fill="both", expand=True)
-
-        # — Imagen fija 200×200 —
         if al.imagen_url:
             try:
-                pil = Image.open(al.imagen_url)
-                pil = pil.resize((200, 200), Image.Resampling.LANCZOS)
-                img_preview = CTkImage(light_image=pil, dark_image=pil, size=(200, 200))
-                lbl_img = ctk.CTkLabel(scroll, image=img_preview, text="")
-                lbl_img.image = img_preview
-                lbl_img.pack(pady=(0, 10))
+                pil = Image.open(al.imagen_url).resize(
+                    (200, 200), Image.Resampling.LANCZOS
+                )
+                img = CTkImage(light_image=pil, dark_image=pil, size=(200, 200))
+                img_label.configure(image=img, text="")
+                img_label.image = img
             except:
-                ctk.CTkLabel(scroll, text="Error al cargar imagen").pack(pady=(0, 10))
+                img_label.configure(text="Error al cargar imagen", image=blank_img)
         else:
-            ctk.CTkLabel(scroll, text="Sin imagen", font=("Segoe UI", 12)).pack(
-                pady=(0, 10)
-            )
+            img_label.configure(text="Sin imagen", image=blank_img)
+            img_label.image = blank_img
 
-        # — Texto de detalles —
-        detalle_text = (
+        detalle = (
             f"Nombre:       {al.nom_producto}\n\n"
             f"Categoría:    {al.categoria or '—'}\n\n"
             f"Calorías:     {al.calorias} kcal\n\n"
             f"Proteína:     {al.proteina} g\n\n"
             f"Grasas:       {al.grasas} g\n\n"
             f"Carbohidratos:{al.carbohidratos} g\n\n"
-            f"Descripción:\n{al.descripcion or '—'}\n"
+            f"Descripción:\n{al.descripcion or '—'}"
         )
-        ctk.CTkLabel(
-            scroll,
-            text=detalle_text,
-            font=("Segoe UI", 12),
-            wraplength=700,
-            justify="left",
-        ).pack(fill="x", pady=(0, 20))
+        text_label.configure(text=detalle)
 
-        # — Botón Cerrar —
-        ctk.CTkButton(
-            scroll,
-            text="Cerrar",
-            command=top.destroy,
-            fg_color="#E74C3C",
-            hover_color="#C0392B",
-            width=100,
-        ).pack(pady=(0, 10))
+    def _populate():
+        for w in lista_frame.winfo_children():
+            w.destroy()
 
-    # Inicializa la lista
+        datos = listar_alimentos()
+        if not datos:
+            ctk.CTkLabel(
+                lista_frame, text="No hay alimentos registrados.", font=("Segoe UI", 14)
+            ).pack(pady=20)
+            return
+
+        for al in datos:
+            icon = None
+            if al.imagen_url:
+                try:
+                    pil = Image.open(al.imagen_url)
+                    pil.thumbnail((30, 30))
+                    icon = CTkImage(light_image=pil, dark_image=pil, size=(30, 30))
+                except:
+                    icon = None
+
+            btn = ctk.CTkButton(
+                lista_frame,
+                text=f"  {al.nom_producto}",
+                image=icon,
+                compound="left",
+                anchor="w",
+                width=1,
+                corner_radius=8,
+                command=lambda pid=al.id_producto: _mostrar_detalles(pid),
+            )
+            btn.image_ref = icon
+            btn.pack(fill="x", pady=4, padx=4)
+
     _populate()
 
-    # — Botón Volver al menú —
     ctk.CTkButton(
-        pantalla,
-        text="Volver al Menú",
-        command=volver_cb,
-        fg_color="#27AE60",
-        hover_color="#2ECC71",
-        width=200,
-    ).pack(pady=15)
+        pantalla, text="Volver al Menú", width=200, corner_radius=8, command=volver_cb
+    ).pack(side="bottom", pady=(5, 5))
+
+    ctk.CTkButton(
+        pantalla, text="Refrescar", width=100, corner_radius=8, command=_populate
+    ).pack(side="bottom", pady=(5, 10))
 
     return pantalla

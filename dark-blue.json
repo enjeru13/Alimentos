@@ -4,13 +4,13 @@
     "color_2": "#2E2E3F",
     "color_3": "#4D4D6F",
     "color_4": "#6F6FAF",
-    "text":    "#ECECEC"
+    "text": "#ECECEC"
   },
   "light": {
     "color_1": "#EFEFEF",
     "color_2": "#DFDFDF",
     "color_3": "#BFBFBF",
     "color_4": "#9F9F9F",
-    "text":    "#1A1A1A"
+    "text": "#1A1A1A"
   }
 }

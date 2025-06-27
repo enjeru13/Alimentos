@@ -11,10 +11,7 @@ from utils.db_utils import (
 
 
 def login_usuario(nombre_usuario: str, contraseña: str) -> Optional[Usuario]:
-    """
-    Verifica credenciales y, si son válidas, devuelve un Usuario.
-    En caso contrario retorna None.
-    """
+
     ok, rol = verificar_credenciales(nombre_usuario, contraseña)
     if not ok:
         return None
@@ -23,7 +20,6 @@ def login_usuario(nombre_usuario: str, contraseña: str) -> Optional[Usuario]:
     if not data:
         return None
 
-    # Parseamos fecha si viene como string
     fecha = data["fecha_registro"]
     if isinstance(fecha, str):
         fecha = datetime.fromisoformat(fecha)
@@ -42,19 +38,12 @@ def login_usuario(nombre_usuario: str, contraseña: str) -> Optional[Usuario]:
 
 
 def crear_usuario(u: Usuario, contraseña: str):
-    """
-    Crea un nuevo usuario en la BD:
-      1) Verifica duplicados
-      2) Hashea la contraseña
-      3) Inserta el registro
-    Lanza Exception si ya existe.
-    """
+
     if _db_usuario_existe(u.nombre_usuario, u.email, u.cedula):
         raise Exception("El usuario, el email o la cédula ya están registrados.")
 
     hashed = hash_password(contraseña)
 
-    # Normalizar fecha a string
     fecha = u.fecha_registro
     if isinstance(fecha, datetime):
         fecha = fecha.strftime("%Y-%m-%d %H:%M:%S")
@@ -73,17 +62,12 @@ def crear_usuario(u: Usuario, contraseña: str):
 
 
 def existe_usuario(nombre_usuario: str, email: str, cedula: str) -> bool:
-    """
-    Wrapper para comprobar duplicados desde las vistas.
-    """
+
     return _db_usuario_existe(nombre_usuario, email, cedula)
 
 
 def obtener_usuario(nombre_usuario: str) -> Optional[Usuario]:
-    """
-    Carga un Usuario completo por nombre o email.
-    Retorna None si no existe.
-    """
+
     data = _db_obtener_datos(nombre_usuario)
     if not data:
         return None

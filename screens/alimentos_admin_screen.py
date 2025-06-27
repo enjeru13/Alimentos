@@ -23,46 +23,78 @@ IMG_DIR = os.path.join("media", "images")
 
 def crear_alimentos_admin_screen(parent, rol_actual, volver_cb):
     pantalla = ctk.CTkFrame(parent)
-    pantalla.pack(expand=True, fill="both")
+    pantalla.pack(expand=True, fill="both", padx=20, pady=20)
 
     ctk.CTkLabel(
         pantalla,
-        text="Gestión de Alimentos (Admin)",
+        text="Gestión de Alimentos",
         font=("Segoe UI", 22, "bold"),
-    ).pack(pady=15)
+        justify="center",
+    ).pack(pady=(0, 20))
 
-    form = ctk.CTkFrame(pantalla)
-    form.pack(pady=10, padx=20, fill="x")
+    form = ctk.CTkFrame(pantalla, corner_radius=10, fg_color=None)
+    form.pack(fill="x", padx=20, pady=(0, 20))
+    for i in range(4):
+        form.grid_columnconfigure(i, weight=1, uniform="col")
 
-    entry_nom = ctk.CTkEntry(form, placeholder_text="Nombre", width=200)
+    entry_nom = ctk.CTkEntry(form, placeholder_text="Nombre")
     combo_cat = ctk.CTkComboBox(
         form, values=[c.nombre for c in listar_categorias()], width=150
     )
     combo_cat.set("Categoría")
-    entry_cal = ctk.CTkEntry(form, placeholder_text="Calorías", width=80)
-    entry_pro = ctk.CTkEntry(form, placeholder_text="Proteína (g)", width=80)
-    entry_gra = ctk.CTkEntry(form, placeholder_text="Grasas (g)", width=80)
-    entry_car = ctk.CTkEntry(form, placeholder_text="Carbohidratos (g)", width=80)
-    entry_desc = ctk.CTkEntry(form, placeholder_text="Descripción", width=300)
+    entry_cal = ctk.CTkEntry(form, placeholder_text="Calorías")
+    entry_pro = ctk.CTkEntry(form, placeholder_text="Proteína (g)")
+    entry_gra = ctk.CTkEntry(form, placeholder_text="Grasas (g)")
+    entry_car = ctk.CTkEntry(form, placeholder_text="Carbohidratos (g)")
+    entry_desc = ctk.CTkEntry(form, placeholder_text="Descripción")
+
+    lbl_img = ctk.CTkLabel(form, text="Sin imagen", width=100, height=80)
+    btn_sel = ctk.CTkButton(form, text="Seleccionar Imagen", width=150)
 
     btn_guardar = ctk.CTkButton(form, text="Agregar", width=120)
     btn_cancelar = ctk.CTkButton(form, text="Cancelar", fg_color="#E74C3C", width=120)
     btn_cancelar.configure(state="disabled")
 
-    entry_nom.grid(row=0, column=0, padx=5, pady=5)
-    combo_cat.grid(row=0, column=1, padx=5, pady=5)
-    entry_cal.grid(row=1, column=0, padx=5, pady=5)
-    entry_pro.grid(row=1, column=1, padx=5, pady=5)
-    entry_gra.grid(row=1, column=2, padx=5, pady=5)
-    entry_car.grid(row=1, column=3, padx=5, pady=5)
-    entry_desc.grid(row=2, column=0, columnspan=3, sticky="ew", padx=5, pady=5)
-    btn_guardar.grid(row=2, column=3, padx=5, pady=5)
-    btn_cancelar.grid(row=2, column=4, padx=5, pady=5)
+    ctk.CTkLabel(form, text="Nombre:", anchor="w").grid(
+        row=0, column=0, padx=5, pady=(10, 2), sticky="w"
+    )
+    ctk.CTkLabel(form, text="Categoría:", anchor="w").grid(
+        row=0, column=1, padx=5, pady=(10, 2), sticky="w"
+    )
+    ctk.CTkLabel(form, text="Calorías:", anchor="w").grid(
+        row=0, column=2, padx=5, pady=(10, 2), sticky="w"
+    )
+    ctk.CTkLabel(form, text="Proteína (g):", anchor="w").grid(
+        row=0, column=3, padx=5, pady=(10, 2), sticky="w"
+    )
 
-    lbl_img_preview = ctk.CTkLabel(form, text="Sin imagen", width=100)
-    lbl_img_preview.grid(row=3, column=0, columnspan=2, pady=5, sticky="w")
+    entry_nom.grid(row=1, column=0, padx=5, pady=(0, 10), sticky="ew")
+    combo_cat.grid(row=1, column=1, padx=5, pady=(0, 10), sticky="ew")
+    entry_cal.grid(row=1, column=2, padx=5, pady=(0, 10), sticky="ew")
+    entry_pro.grid(row=1, column=3, padx=5, pady=(0, 10), sticky="ew")
+
+    ctk.CTkLabel(form, text="Grasas (g):", anchor="w").grid(
+        row=2, column=0, padx=5, pady=(0, 2), sticky="w"
+    )
+    ctk.CTkLabel(form, text="Carbohidratos (g):", anchor="w").grid(
+        row=2, column=1, padx=5, pady=(0, 2), sticky="w"
+    )
+    ctk.CTkLabel(form, text="Descripción:", anchor="w").grid(
+        row=2, column=2, columnspan=2, padx=5, pady=(0, 2), sticky="w"
+    )
+
+    entry_gra.grid(row=3, column=0, padx=5, pady=(0, 10), sticky="ew")
+    entry_car.grid(row=3, column=1, padx=5, pady=(0, 10), sticky="ew")
+    entry_desc.grid(row=3, column=2, columnspan=2, padx=5, pady=(0, 10), sticky="ew")
+
+    lbl_img.grid(row=4, column=0, columnspan=2, padx=5, pady=10, sticky="w")
+    btn_sel.grid(row=4, column=2, columnspan=2, padx=5, pady=10, sticky="w")
+
+    btn_guardar.grid(row=5, column=2, padx=5, pady=10, sticky="ew")
+    btn_cancelar.grid(row=5, column=3, padx=5, pady=10, sticky="ew")
 
     imagen_path = {"ruta": None}
+    estado_edicion = {"id": None}
 
     def _seleccionar_imagen():
         file = filedialog.askopenfilename(
@@ -70,49 +102,31 @@ def crear_alimentos_admin_screen(parent, rol_actual, volver_cb):
         )
         if not file:
             return
-
         os.makedirs(IMG_DIR, exist_ok=True)
-        src = os.path.abspath(file)
-        dst = os.path.abspath(os.path.join(IMG_DIR, os.path.basename(file)))
-
-        if src != dst:
-            try:
-                shutil.copy(src, dst)
-            except SameFileError:
-                pass
-
-        imagen_path["ruta"] = dst.replace("\\", "/")
-
+        dst = os.path.join(IMG_DIR, os.path.basename(file))
         try:
-            pil = Image.open(dst)
-            pil.thumbnail((80, 80))
-            icon = CTkImage(light_image=pil, dark_image=pil, size=(80, 80))
-            lbl_img_preview.configure(image=icon, text="")
-            lbl_img_preview.image = icon
+            shutil.copy(file, dst)
+        except SameFileError:
+            pass
+        imagen_path["ruta"] = dst.replace("\\", "/")
+        try:
+            img = Image.open(dst)
+            img.thumbnail((80, 80))
+            icon = CTkImage(light_image=img, dark_image=img, size=(80, 80))
+            lbl_img.configure(image=icon, text="")
+            lbl_img.image = icon
         except:
-            lbl_img_preview.configure(text="Error al cargar imagen")
+            lbl_img.configure(text="Error al cargar imagen")
 
-    btn_sel = ctk.CTkButton(
-        form,
-        text="Seleccionar Imagen",
-        width=150,
-        command=_seleccionar_imagen,
-    )
-    btn_sel.grid(row=3, column=2, padx=5, pady=5)
-
-    estado_edicion = {"id": None}
+    btn_sel.configure(command=_seleccionar_imagen)
 
     def limpiar_form():
         estado_edicion["id"] = None
-        entry_nom.delete(0, "end")
+        for w in (entry_nom, entry_cal, entry_pro, entry_gra, entry_car, entry_desc):
+            w.delete(0, "end")
         combo_cat.set("Categoría")
-        entry_cal.delete(0, "end")
-        entry_pro.delete(0, "end")
-        entry_gra.delete(0, "end")
-        entry_car.delete(0, "end")
-        entry_desc.delete(0, "end")
         imagen_path["ruta"] = None
-        lbl_img_preview.configure(image=None, text="Sin imagen")
+        lbl_img.configure(image=None, text="Sin imagen")
         btn_guardar.configure(text="Agregar")
         btn_cancelar.configure(state="disabled")
 
@@ -134,13 +148,9 @@ def crear_alimentos_admin_screen(parent, rol_actual, volver_cb):
                 actualizar_alimento(al, rol_actual)
             else:
                 crear_alimento(al, rol_actual)
-        except PermissionError as pe:
-            messagebox.showerror("Permisos", str(pe))
-            return
         except Exception as e:
             messagebox.showerror("Error", str(e))
             return
-
         limpiar_form()
         refrescar_lista()
 
@@ -150,97 +160,56 @@ def crear_alimentos_admin_screen(parent, rol_actual, volver_cb):
         entry_nom.insert(0, al.nom_producto)
         combo_cat.set(al.categoria or "Categoría")
         full = obtener_alimento(al.id_producto)
-        entry_cal.delete(0, "end")
-        entry_cal.insert(0, str(full.calorias))
-        entry_pro.delete(0, "end")
-        entry_pro.insert(0, str(full.proteina))
-        entry_gra.delete(0, "end")
-        entry_gra.insert(0, str(full.grasas))
-        entry_car.delete(0, "end")
-        entry_car.insert(0, str(full.carbohidratos))
+        for fld, val in (
+            (entry_cal, full.calorias),
+            (entry_pro, full.proteina),
+            (entry_gra, full.grasas),
+            (entry_car, full.carbohidratos),
+        ):
+            fld.delete(0, "end")
+            fld.insert(0, str(val))
         entry_desc.delete(0, "end")
         entry_desc.insert(0, full.descripcion)
-
         if full.imagen_url:
             try:
-                pil = Image.open(full.imagen_url)
-                pil.thumbnail((80, 80))
-                icon = CTkImage(light_image=pil, dark_image=pil, size=(80, 80))
-                lbl_img_preview.configure(image=icon, text="")
-                lbl_img_preview.image = icon
+                img = Image.open(full.imagen_url)
+                img.thumbnail((80, 80))
+                icon = CTkImage(light_image=img, dark_image=img, size=(80, 80))
+                lbl_img.configure(image=icon, text="")
+                lbl_img.image = icon
                 imagen_path["ruta"] = full.imagen_url
             except:
                 pass
-
         btn_guardar.configure(text="Guardar")
         btn_cancelar.configure(state="normal")
 
     def borrar(idp: int):
         try:
             borrar_alimento(idp, rol_actual)
-        except PermissionError as pe:
-            messagebox.showerror("Permisos", str(pe))
-            return
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
         refrescar_lista()
-
-    def mostrar_detalle(idp: int):
-        al = obtener_alimento(idp)
-        if not al:
-            messagebox.showerror("Error", "No se pudieron obtener los detalles.")
-            return
-
-        top = ctk.CTkToplevel(pantalla)
-        top.title(al.nom_producto)
-        top.geometry("450x350")
-
-        frm = ctk.CTkFrame(top)
-        frm.pack(padx=20, pady=20, fill="both", expand=True)
-
-        info = (
-            f"Nombre:       {al.nom_producto}\n"
-            f"Categoría:    {al.categoria}\n"
-            f"Calorías:     {al.calorias} kcal\n"
-            f"Proteína:     {al.proteina} g\n"
-            f"Grasas:       {al.grasas} g\n"
-            f"Carbohidratos:{al.carbohidratos} g\n"
-            f"Descripción:\n{al.descripcion}\n"
-        )
-        txt = ctk.CTkTextbox(frm, font=("Segoe UI", 12), wrap="word")
-        txt.insert("0.0", info)
-        txt.configure(state="disabled")
-        txt.pack(fill="both", expand=True, pady=(0, 20))
-
-        ctk.CTkButton(
-            top,
-            text="Cerrar",
-            command=top.destroy,
-            fg_color="#E74C3C",
-            hover_color="#C0392B",
-            width=100,
-        ).pack(pady=(0, 10))
 
     btn_guardar.configure(command=guardar_o_editar)
     btn_cancelar.configure(command=limpiar_form)
 
-    lista_frame = ctk.CTkScrollableFrame(pantalla, width=600, height=300)
-    lista_frame.pack(padx=20, pady=10, fill="both", expand=True)
+    lista_frame = ctk.CTkScrollableFrame(pantalla, corner_radius=10)
+    lista_frame.pack(expand=True, fill="both", padx=20, pady=(0, 20))
 
     def refrescar_lista():
+        combo_cat.configure(values=[c.nombre for c in listar_categorias()])
         for w in lista_frame.winfo_children():
             w.destroy()
-        combo_cat.configure(values=[c.nombre for c in listar_categorias()])
-
         for al in listar_alimentos():
-            row = ctk.CTkFrame(lista_frame, fg_color="transparent")
+            row = ctk.CTkFrame(lista_frame, fg_color=None)
             row.grid_columnconfigure(0, weight=1)
+            row.pack(fill="x", pady=4, padx=10)
 
-            ctk.CTkButton(
+            ctk.CTkLabel(
                 row,
                 text=f"{al.nom_producto} ({al.categoria})",
-                fg_color="transparent",
-                hover_color="#2980B9",
+                font=("Segoe UI", 14),
                 anchor="w",
-                command=lambda pid=al.id_producto: mostrar_detalle(pid),
             ).grid(row=0, column=0, sticky="ew")
 
             ctk.CTkButton(
@@ -256,17 +225,10 @@ def crear_alimentos_admin_screen(parent, rol_actual, volver_cb):
                 command=lambda pid=al.id_producto: borrar(pid),
             ).grid(row=0, column=2, padx=5)
 
-            row.pack(fill="x", pady=2, padx=10)
-
     refrescar_lista()
 
     ctk.CTkButton(
-        pantalla,
-        text="Volver al Menú",
-        command=volver_cb,
-        fg_color="#27AE60",
-        hover_color="#2ECC71",
-        width=200,
-    ).pack(pady=10)
+        pantalla, text="Volver al Menú", width=200, corner_radius=8, command=volver_cb
+    ).pack(pady=(0, 10))
 
     return pantalla

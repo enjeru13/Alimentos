@@ -1,5 +1,3 @@
-# controllers/alimentos_controller.py
-
 from typing import List, Optional
 from datetime import datetime
 

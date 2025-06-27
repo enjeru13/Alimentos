@@ -1,5 +1,3 @@
-# screens/login_screen.py
-
 import os
 from tkinter import messagebox
 
@@ -15,7 +13,6 @@ def crear_login_screen(parent, mostrar_registro, mostrar_principal):
 
     pantalla.bind_class("CTkButton", "<Return>", lambda e: e.widget.invoke())
 
-    # Fondo de imagen (opcional)
     try:
         img = Image.open(os.path.join("media", "background1.jpg"))
         fondo_img = ctk.CTkImage(light_image=img, dark_image=img, size=(900, 700))
@@ -35,9 +32,7 @@ def crear_login_screen(parent, mostrar_registro, mostrar_principal):
     except FileNotFoundError:
         pass
 
-    # Contenedor central
-    cont = ctk.CTkFrame(pantalla, corner_radius=15, fg_color="transparent"
-)
+    cont = ctk.CTkFrame(pantalla, corner_radius=15, fg_color="transparent")
     cont.place(relx=0.5, rely=0.5, anchor="center")
 
     ctk.CTkLabel(cont, text="Iniciar Sesión", font=("Segoe UI", 22, "bold")).pack(
@@ -65,11 +60,9 @@ def crear_login_screen(parent, mostrar_registro, mostrar_principal):
         if not usuario_obj:
             return messagebox.showerror("Error", "Usuario o contraseña inválidos.")
 
-        # <-- Mensaje de bienvenida reinsertado
         messagebox.showinfo("Bienvenido", f"¡Hola, {usuario_obj.nombre_usuario}!")
         mostrar_principal(usuario_obj.nombre_usuario, usuario_obj.rol)
 
-    # Botones que heredan colores del tema
     ctk.CTkButton(cont, text="Iniciar Sesión", width=180, command=login).pack(pady=15)
     ctk.CTkButton(cont, text="Registrarse", width=180, command=mostrar_registro).pack(
         pady=(0, 10)

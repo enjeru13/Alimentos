@@ -12,22 +12,14 @@ DB_NAME = os.getenv("DB_NAME", "AlimentosDB")
 
 
 def conectar():
-    """
-    Abre y retorna una conexión MySQL usando las variables de entorno:
-      DB_HOST, DB_PORT, DB_USER, DB_PASSWORD, DB_NAME
-    """
+
     return mysql.connector.connect(
         host=DB_HOST, port=DB_PORT, user=DB_USER, password=DB_PASSWORD, database=DB_NAME
     )
 
 
-# ——— Usuarios —————————————————————————————————————————————————————
-
-
 def usuario_existe(nombre_usuario: str, email: str, cedula: str) -> bool:
-    """
-    Retorna True si ya existe un usuario con ese nombre, email o cédula.
-    """
+
     cnx = conectar()
     cur = cnx.cursor()
     try:
@@ -43,10 +35,7 @@ def usuario_existe(nombre_usuario: str, email: str, cedula: str) -> bool:
 
 
 def obtener_hash_contraseña(nombre_usuario: str) -> dict | None:
-    """
-    Recupera {'hash_contraseña': str, 'rol': str} para un nombre o email dado,
-    o None si no existe.
-    """
+
     cnx = conectar()
     cur = cnx.cursor(dictionary=True)
     try:
@@ -63,10 +52,7 @@ def obtener_hash_contraseña(nombre_usuario: str) -> dict | None:
 
 
 def obtener_datos_usuario(nombre_usuario: str) -> dict | None:
-    """
-    Recupera todos los campos de un usuario (sin contraseña).
-    Devuelve un dict o None si no existe.
-    """
+
     cnx = conectar()
     cur = cnx.cursor(dictionary=True)
     try:
@@ -98,9 +84,7 @@ def insertar_usuario(
     fecha_registro: str,
     rol: str,
 ):
-    """
-    Inserta un nuevo usuario (la contraseña ya debe venir hasheada).
-    """
+
     cnx = conectar()
     cur = cnx.cursor()
     try:
@@ -129,11 +113,7 @@ def insertar_usuario(
         cnx.close()
 
 
-# ——— Alimentos —————————————————————————————————————————————————————
-
-
 def obtener_todos_los_alimentos() -> list[dict]:
-    """Devuelve id_producto, nom_producto y categoría de cada alimento."""
     cnx = conectar()
     cur = cnx.cursor(dictionary=True)
     try:
@@ -156,9 +136,7 @@ def obtener_todos_los_alimentos() -> list[dict]:
 
 
 def buscar_alimento_db(termino: str) -> list[dict]:
-    """
-    Busca alimentos cuyo nombre contenga 'termino' (case-insensitive).
-    """
+
     patron = f"%{termino.lower()}%"
     cnx = conectar()
     cur = cnx.cursor(dictionary=True)
@@ -184,7 +162,6 @@ def buscar_alimento_db(termino: str) -> list[dict]:
 
 
 def obtener_detalles_alimento_db(id_producto: int) -> dict | None:
-    """Devuelve todos los campos de un alimento + su categoría."""
     cnx = conectar()
     cur = cnx.cursor(dictionary=True)
     try:
@@ -209,7 +186,6 @@ def obtener_detalles_alimento_db(id_producto: int) -> dict | None:
 
 
 def obtener_alimentos_por_categoria(id_categoria: int) -> list[dict]:
-    """Devuelve los alimentos de una categoría con sus macros básicos."""
     cnx = conectar()
     cur = cnx.cursor(dictionary=True)
     try:
@@ -240,7 +216,6 @@ def insertar_alimento(
     descripcion: str | None = None,
     imagen_url: str | None = None,
 ):
-    """Inserta un nuevo registro en la tabla alimentos."""
     cnx = conectar()
     cur = cnx.cursor()
     try:
@@ -279,7 +254,6 @@ def actualizar_alimento(
     descripcion: str | None = None,
     imagen_url: str | None = None,
 ):
-    """Actualiza un alimento existente."""
     cnx = conectar()
     cur = cnx.cursor()
     try:
@@ -315,7 +289,6 @@ def actualizar_alimento(
 
 
 def eliminar_alimento(id_producto: int):
-    """Elimina un alimento por su ID."""
     cnx = conectar()
     cur = cnx.cursor()
     try:
@@ -326,11 +299,7 @@ def eliminar_alimento(id_producto: int):
         cnx.close()
 
 
-# ——— Categorías ————————————————————————————————————————————————————
-
-
 def obtener_categorias() -> list[dict]:
-    """Devuelve id_categoria y nombre de todas las categorías."""
     cnx = conectar()
     cur = cnx.cursor(dictionary=True)
     try:
@@ -342,7 +311,6 @@ def obtener_categorias() -> list[dict]:
 
 
 def insertar_categoria(nombre: str):
-    """Inserta una nueva categoría."""
     cnx = conectar()
     cur = cnx.cursor()
     try:
@@ -354,7 +322,6 @@ def insertar_categoria(nombre: str):
 
 
 def actualizar_categoria(id_categoria: int, nombre_nuevo: str):
-    """Actualiza el nombre de una categoría."""
     cnx = conectar()
     cur = cnx.cursor()
     try:
@@ -369,7 +336,6 @@ def actualizar_categoria(id_categoria: int, nombre_nuevo: str):
 
 
 def eliminar_categoria(id_categoria: int):
-    """Elimina una categoría por su ID."""
     cnx = conectar()
     cur = cnx.cursor()
     try:
