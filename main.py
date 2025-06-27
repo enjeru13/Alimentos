@@ -68,7 +68,7 @@ def mostrar_perfil():
 
 root = ctk.CTk()
 root.title("Sistema de Usuarios")
-root.geometry("900x700")
+root.geometry("1250x725")
 
 login_screen = crear_login_screen(root, mostrar_registro, mostrar_principal)
 register_screen = crear_register_screen(root, mostrar_login)

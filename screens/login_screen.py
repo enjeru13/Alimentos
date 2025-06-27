@@ -5,6 +5,9 @@ import customtkinter as ctk
 from PIL import Image
 
 from controllers.usuarios_controller import login_usuario
+from utils.db_utils import obtener_pregunta
+from screens.components.recuperar_pass1 import abrir_recuperar_paso1
+from screens.components.recuperar_pass2 import abrir_recuperar_paso2
 
 
 def crear_login_screen(parent, mostrar_registro, mostrar_principal):
@@ -63,12 +66,31 @@ def crear_login_screen(parent, mostrar_registro, mostrar_principal):
         messagebox.showinfo("Bienvenido", f"¡Hola, {usuario_obj.nombre_usuario}!")
         mostrar_principal(usuario_obj.nombre_usuario, usuario_obj.rol)
 
-    ctk.CTkButton(cont, text="Iniciar Sesión", width=180, command=login).pack(pady=15)
+    ctk.CTkButton(cont, text="Iniciar Sesión", width=180, command=login).pack(
+        pady=(10, 5)
+    )
     ctk.CTkButton(cont, text="Registrarse", width=180, command=mostrar_registro).pack(
-        pady=(0, 10)
+        pady=(0, 5)
     )
 
+    def lanzar_paso2(usuario_o_email: str, pregunta: str):
+        info = obtener_pregunta(usuario_o_email)
+        if not info:
+            return messagebox.showerror(
+                "Error", "No se pudo obtener datos de recuperación."
+            )
+        abrir_recuperar_paso2(cont, info["id_usuario"], pregunta)
+
+    ctk.CTkButton(
+        cont,
+        text="¿Olvidaste tu contraseña?",
+        fg_color="transparent",
+        hover_color=None,
+        command=lambda: abrir_recuperar_paso1(cont, on_success=lanzar_paso2),
+    ).pack(pady=(5, 15))
+
     entry_contra.bind("<Return>", lambda e: login())
+
     return pantalla
 
 

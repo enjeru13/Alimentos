@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
+from typing import Optional
 
 
 @dataclass
@@ -13,3 +14,6 @@ class Usuario:
     año_seccion: str
     fecha_registro: datetime
     rol: str
+    contraseña: Optional[str] = None
+    pregunta_seguridad: Optional[str] = None
+    respuesta_seguridad: Optional[str] = None

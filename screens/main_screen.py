@@ -29,12 +29,11 @@ class MainScreen(ctk.CTkFrame):
         self._cfg = json.load(open(CONFIG_PATH, "r"))
 
         self.pack(expand=True, fill="both", padx=20, pady=20)
-
         self._build_ui()
 
     def _build_ui(self):
-        sidebar = ctk.CTkFrame(self, width=200, corner_radius=10)
-        sidebar.pack(side="left", fill="y", padx=(0, 10), pady=0)
+        sidebar = ctk.CTkFrame(self, width=220, corner_radius=10)
+        sidebar.pack(side="left", fill="y", padx=(10, 0), pady=(10, 10))
         sidebar.pack_propagate(False)
 
         ctk.CTkLabel(
@@ -50,7 +49,7 @@ class MainScreen(ctk.CTkFrame):
             ("Ver Perfil", self.mostrar_perfil_cb),
         ]:
             ctk.CTkButton(
-                sidebar, text=txt, width=160, corner_radius=8, command=cmd
+                sidebar, text=txt, width=180, height=36, corner_radius=8, command=cmd
             ).pack(pady=8)
 
         self.theme_switch = CTkSwitch(
@@ -63,11 +62,11 @@ class MainScreen(ctk.CTkFrame):
         self.theme_switch.pack(side="bottom", pady=20)
 
         body = ctk.CTkFrame(self, corner_radius=10)
-        body.pack(side="right", expand=True, fill="both", padx=(10, 0), pady=0)
+        body.pack(side="right", expand=True, fill="both", padx=(10, 10), pady=(10, 10))
 
         cats = listar_categorias()
         self.search_bar = SearchBar(body, cats, self._on_search)
-        self.search_bar.pack(fill="x", pady=(0, 20), padx=10)
+        self.search_bar.pack(fill="x", pady=(20, 20), padx=10)
 
         self.results_list = ResultsList(body, self._on_select, width=400, height=200)
         self.results_list.pack(fill="both", expand=True, pady=(0, 20), padx=10)
