@@ -18,7 +18,6 @@ def crear_perfil_screen(parent, usuario: Usuario, volver_callback):
         perfil_frame,
         text="Perfil del Usuario",
         font=("Segoe UI", 24, "bold"),
-        text_color="#ECF0F1",
     ).pack(pady=20)
 
     contenedor = ctk.CTkFrame(
@@ -31,7 +30,6 @@ def crear_perfil_screen(parent, usuario: Usuario, volver_callback):
             contenedor,
             text=titulo,
             font=("Segoe UI", 16, "bold"),
-            text_color="#ECF0F1",
             anchor="w",
         ).pack(fill="x", padx=10, pady=(10, 5))
 
@@ -41,7 +39,6 @@ def crear_perfil_screen(parent, usuario: Usuario, volver_callback):
             fila,
             text=etiqueta,
             font=("Segoe UI", 14, "bold"),
-            text_color="#ECF0F1",
             width=180,
             anchor="w",
         )
@@ -49,7 +46,6 @@ def crear_perfil_screen(parent, usuario: Usuario, volver_callback):
             fila,
             text=valor,
             font=("Segoe UI", 12),
-            text_color="#BDC3C7",
             anchor="w",
         )
         lbl.grid(row=0, column=0, padx=10, pady=(5, 0), sticky="w")

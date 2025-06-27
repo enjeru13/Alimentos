@@ -1,7 +1,10 @@
 # controllers/alimentos_controller.py
 
 from typing import List, Optional
+from datetime import datetime
+
 from models.alimento import Alimento
+from controllers.authz import require_admin
 from utils.db_utils import (
     obtener_todos_los_alimentos as _fetch_all,
     buscar_alimento_db as _search_db,
@@ -10,12 +13,11 @@ from utils.db_utils import (
     actualizar_alimento as _update_db,
     eliminar_alimento as _delete_db,
     obtener_alimentos_por_categoria as _fetch_by_cat,
-    obtener_categorias as _fetch_categories,
+    obtener_categorias as _fetch_cats,
 )
 
 
 def listar_alimentos() -> List[Alimento]:
-    """Devuelve todos los alimentos (id, nombre, categoría)."""
     rows = _fetch_all()
     return [
         Alimento(
@@ -28,10 +30,6 @@ def listar_alimentos() -> List[Alimento]:
 
 
 def buscar_alimentos(termino: str) -> List[Alimento]:
-    """
-    Busca alimentos por nombre parcial (case-insensitive).
-    Usa la función buscar_alimento_db de la capa de datos.
-    """
     rows = _search_db(termino)
     return [
         Alimento(
@@ -44,7 +42,6 @@ def buscar_alimentos(termino: str) -> List[Alimento]:
 
 
 def obtener_alimento(id_producto: int) -> Optional[Alimento]:
-    """Devuelve un Alimento completo o None si no existe."""
     r = _fetch_one(id_producto)
     if not r:
         return None
@@ -62,10 +59,9 @@ def obtener_alimento(id_producto: int) -> Optional[Alimento]:
     )
 
 
-def crear_alimento(al: Alimento):
-    """Inserta un nuevo alimento en la BD."""
-    # buscamos el id de la categoría por nombre
-    cats = _fetch_categories()
+def crear_alimento(al: Alimento, rol: str):
+    require_admin(rol)
+    cats = _fetch_cats()
     idc = next((c["id_categoria"] for c in cats if c["nombre"] == al.categoria), None)
     _insert_db(
         al.nom_producto,
@@ -79,9 +75,9 @@ def crear_alimento(al: Alimento):
     )
 
 
-def actualizar_alimento(al: Alimento):
-    """Actualiza los datos de un alimento existente."""
-    cats = _fetch_categories()
+def actualizar_alimento(al: Alimento, rol: str):
+    require_admin(rol)
+    cats = _fetch_cats()
     idc = next((c["id_categoria"] for c in cats if c["nombre"] == al.categoria), None)
     _update_db(
         al.id_producto,
@@ -96,13 +92,12 @@ def actualizar_alimento(al: Alimento):
     )
 
 
-def borrar_alimento(id_producto: int):
-    """Elimina un alimento por su ID."""
+def borrar_alimento(id_producto: int, rol: str):
+    require_admin(rol)
     _delete_db(id_producto)
 
 
 def listar_alimentos_por_categoria(id_categoria: int) -> List[Alimento]:
-    """Recupera los alimentos de una categoría dada (sólo macros básicos)."""
     rows = _fetch_by_cat(id_categoria)
     return [
         Alimento(

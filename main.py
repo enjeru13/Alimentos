@@ -1,77 +1,79 @@
-# main.py
-
+import json
+import os
 import customtkinter as ctk
 from tkinter import messagebox
 
+from controllers.usuarios_controller import obtener_usuario
 from screens.login_screen import crear_login_screen
 from screens.register_screen import crear_register_screen
-from screens.main_screen import crear_main_screen
 from screens.perfil_screen import crear_perfil_screen
+from screens.main_screen import MainScreen
 
-# Importamos el controller que carga un Usuario completo
-from controllers.usuarios_controller import obtener_usuario
-
-# ── Configuración global CTk ──────────────────────────────────────────────
-ctk.set_appearance_mode("dark")
-ctk.set_default_color_theme("blue")
-
-# ── Variables globales ────────────────────────────────────────────────────
-usuario_actual_global = None
-rol_actual_global = None
+CONFIG_PATH = "config.json"
 
 
-def mostrar_pantalla(parent, pantalla):
-    """Oculta todos los widgets de parent y muestra solo pantalla."""
+def load_config():
+    if os.path.exists(CONFIG_PATH):
+        try:
+            return json.load(open(CONFIG_PATH, "r"))
+        except:
+            pass
+    # valores por defecto
+    return {"appearance": "System", "color_theme": "blue"}
+
+
+def save_config(cfg):
+    json.dump(cfg, open(CONFIG_PATH, "w"), indent=2)
+
+
+# ── Inicializamos modo y tema integrado ─────────────────────────────
+cfg = load_config()
+ctk.set_appearance_mode(cfg.get("appearance", "System"))
+ctk.set_default_color_theme(cfg.get("color_theme", "blue"))
+
+usuario_actual = None
+rol_actual = None
+
+
+def mostrar_pantalla(parent, frame):
     for w in parent.winfo_children():
         w.pack_forget()
-    pantalla.pack(expand=True, fill="both")
+    frame.pack(expand=True, fill="both")
 
 
-def mostrar_login_pantalla():
-    mostrar_pantalla(ventana, login_screen)
+def mostrar_login():
+    mostrar_pantalla(root, login_screen)
 
 
-def mostrar_registro_pantalla():
-    mostrar_pantalla(ventana, register_screen)
+def mostrar_registro():
+    mostrar_pantalla(root, register_screen)
 
 
 def mostrar_principal(usuario, rol):
-    """Guarda usuario/rol y muestra la pantalla principal."""
-    global usuario_actual_global, rol_actual_global
-    usuario_actual_global = usuario
-    rol_actual_global = rol
-
-    main = crear_main_screen(
-        ventana, usuario_actual_global, rol_actual_global, mostrar_perfil_pantalla
-    )
-    mostrar_pantalla(ventana, main)
+    global usuario_actual, rol_actual
+    usuario_actual = usuario
+    rol_actual = rol
+    principal = MainScreen(root, usuario_actual, rol_actual, mostrar_perfil)
+    mostrar_pantalla(root, principal)
 
 
-def mostrar_perfil_pantalla():
-    """
-    Obtiene un objeto Usuario desde el controller y construye la pantalla de perfil.
-    """
-    user = obtener_usuario(usuario_actual_global)
+def mostrar_perfil():
+    user = obtener_usuario(usuario_actual)
     if not user:
         messagebox.showerror("Error", "No se pudieron obtener los datos del usuario.")
         return
-
     perfil = crear_perfil_screen(
-        ventana, user, lambda: mostrar_principal(user.nombre_usuario, user.rol)
+        root, user, lambda: mostrar_principal(user.nombre_usuario, user.rol)
     )
-    mostrar_pantalla(ventana, perfil)
+    mostrar_pantalla(root, perfil)
 
 
-# ── Inicialización de la ventana ─────────────────────────────────────────
-ventana = ctk.CTk()
-ventana.title("Sistema de Usuarios")
-ventana.geometry("900x700")
+root = ctk.CTk()
+root.title("Sistema de Usuarios")
+root.geometry("900x700")
 
-# ── Instancia de pantallas de login y registro ───────────────────────────
-login_screen = crear_login_screen(ventana, mostrar_registro_pantalla, mostrar_principal)
-register_screen = crear_register_screen(ventana, mostrar_login_pantalla)
+login_screen = crear_login_screen(root, mostrar_registro, mostrar_principal)
+register_screen = crear_register_screen(root, mostrar_login)
 
-# Arranca en login
-mostrar_login_pantalla()
-
-ventana.mainloop()
+mostrar_login()
+root.mainloop()

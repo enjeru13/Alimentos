@@ -1,19 +1,22 @@
-# screens/categorias_admin_screen.py
-
 import customtkinter as ctk
+from tkinter import messagebox
+
+from models.categoria import Categoria
 from controllers.categorias_controller import (
     listar_categorias,
     crear_categoria,
     actualizar_categoria,
     borrar_categoria,
 )
-from models.categoria import Categoria
 
 
-def crear_categorias_admin_screen(parent, volver_cb):
+def crear_categorias_admin_screen(parent, rol_actual, volver_cb):
     """
-    Pantalla de CRUD de categorías para admin.
-    volver_cb(): callback que oculta esta pantalla y muestra el menú principal.
+    Pantalla CRUD de categorías para admin.
+    Args:
+      parent: contenedor CTk
+      rol_actual: 'admin' o 'user'
+      volver_cb: callback para volver al menú principal
     """
     pantalla = ctk.CTkFrame(parent)
     pantalla.pack(expand=True, fill="both")
@@ -23,14 +26,13 @@ def crear_categorias_admin_screen(parent, volver_cb):
         pantalla,
         text="Gestión de Categorías",
         font=("Segoe UI", 22, "bold"),
-        text_color="#ECF0F1",
     ).pack(pady=20)
 
-    # — Lista scrollable de categorías —
+    # — Lista scrollable —
     lista_frame = ctk.CTkScrollableFrame(pantalla, width=400, height=300)
     lista_frame.pack(padx=20, pady=10, fill="both", expand=True)
 
-    # — Formulario de nueva categoría —
+    # — Formulario —
     form = ctk.CTkFrame(pantalla)
     form.pack(pady=10)
     entry_nombre = ctk.CTkEntry(form, placeholder_text="Nombre categoría", width=200)
@@ -38,14 +40,14 @@ def crear_categorias_admin_screen(parent, volver_cb):
     ctk.CTkButton(
         form,
         text="Agregar",
-        command=lambda: _agregar_categoria(entry_nombre, refresh_list),
         fg_color="#2980B9",
         hover_color="#3498DB",
         width=100,
+        command=lambda: _agregar_categoria(),
     ).grid(row=0, column=1, padx=5)
 
     def refresh_list():
-        """Recarga la lista de categorías desde el controller."""
+        """Recarga el listado de categorías."""
         for w in lista_frame.winfo_children():
             w.destroy()
 
@@ -53,7 +55,6 @@ def crear_categorias_admin_screen(parent, volver_cb):
             row = ctk.CTkFrame(lista_frame, fg_color="transparent")
             row.grid_columnconfigure(0, weight=1)
 
-            # Nombre
             ctk.CTkLabel(
                 row,
                 text=cat.nombre,
@@ -62,39 +63,41 @@ def crear_categorias_admin_screen(parent, volver_cb):
                 anchor="w",
             ).grid(row=0, column=0, sticky="w", padx=(5, 0))
 
-            # Editar
             ctk.CTkButton(
                 row,
                 text="✏️",
                 width=40,
-                command=lambda c=cat: _editar_categoria(c, refresh_list),
+                command=lambda c=cat: _editar_categoria(c),
             ).grid(row=0, column=1, padx=5)
 
-            # Borrar
             ctk.CTkButton(
                 row,
                 text="🗑️",
                 width=40,
                 fg_color="#E74C3C",
                 hover_color="#C0392B",
-                command=lambda idc=cat.id_categoria: _borrar_categoria(
-                    idc, refresh_list
-                ),
+                command=lambda idc=cat.id_categoria: _borrar_categoria(idc),
             ).grid(row=0, column=2, padx=5)
 
             row.pack(fill="x", pady=2, padx=5)
 
-    def _agregar_categoria(entry, refrescar):
-        """Lee el nombre, crea el model y llama al controller."""
-        nombre = entry.get().strip()
+    def _agregar_categoria():
+        """Crea una nueva categoría (solo admin)."""
+        nombre = entry_nombre.get().strip()
         if not nombre:
             return
-        crear_categoria(Categoria(id_categoria=0, nombre=nombre))
-        entry.delete(0, "end")
-        refrescar()
 
-    def _editar_categoria(cat: Categoria, refrescar):
-        """Abre un Toplevel para cambiar el nombre, luego actualiza."""
+        try:
+            crear_categoria(Categoria(id_categoria=0, nombre=nombre), rol_actual)
+        except PermissionError as pe:
+            messagebox.showerror("Permisos", str(pe))
+            return
+
+        entry_nombre.delete(0, "end")
+        refresh_list()
+
+    def _editar_categoria(cat: Categoria):
+        """Abre Toplevel para renombrar categoría (solo admin)."""
         top = ctk.CTkToplevel(pantalla)
         top.title("Editar Categoría")
         top.geometry("300x120")
@@ -103,37 +106,47 @@ def crear_categorias_admin_screen(parent, volver_cb):
         ent.insert(0, cat.nombre)
         ent.pack(pady=10)
 
-        def _guardar():
+        def guardar_y_cerrar():
             nuevo = ent.get().strip()
-            if nuevo:
+            if not nuevo:
+                return
+            try:
                 actualizar_categoria(
-                    Categoria(id_categoria=cat.id_categoria, nombre=nuevo)
+                    Categoria(id_categoria=cat.id_categoria, nombre=nuevo), rol_actual
                 )
+            except PermissionError as pe:
+                messagebox.showerror("Permisos", str(pe))
+                return
+
             top.destroy()
-            refrescar()
+            refresh_list()
 
         ctk.CTkButton(
             top,
             text="Guardar",
-            command=_guardar,
             fg_color="#2980B9",
             hover_color="#3498DB",
             width=100,
+            command=guardar_y_cerrar,
         ).pack(pady=5)
 
-    def _borrar_categoria(id_categoria: int, refrescar):
-        """Llama al controller para eliminar y recarga la lista."""
-        borrar_categoria(id_categoria)
-        refrescar()
+    def _borrar_categoria(idc: int):
+        """Elimina la categoría (solo admin)."""
+        try:
+            borrar_categoria(idc, rol_actual)
+        except PermissionError as pe:
+            messagebox.showerror("Permisos", str(pe))
+            return
+        refresh_list()
 
-    # Inicializar listado
+    # Inicializamos listado
     refresh_list()
 
-    # — Botón Volver —
+    # — Volver —
     ctk.CTkButton(
         pantalla,
         text="Volver al Menú",
-        command=volver_cb,  # sólo llama al callback; el main oculta esta pantalla
+        command=volver_cb,
         fg_color="#27AE60",
         hover_color="#2ECC71",
         width=200,

@@ -16,7 +16,7 @@ def crear_categorias_user_screen(parent, volver_cb):
 
     # — Título —
     ctk.CTkLabel(
-        pantalla, text="Categorías", font=("Segoe UI", 22, "bold"), text_color="#ECF0F1"
+        pantalla, text="Categorías", font=("Segoe UI", 22, "bold"),
     ).pack(pady=20)
 
     # — Lista scrollable de categorías —
